@@ -1,5 +1,6 @@
 package org.example;
 
+import com.google.gson.Gson;
 import org.example.dao.OrderDao;
 import org.example.dao.UserDao;
 import org.example.models.Order;
@@ -16,7 +17,7 @@ public class Main {
     public static void main(String[] args) {
 
         // ========= 1. TABLE CREATE =========
-        createTables();
+//        createTables();
 
         ApplicationContext context =
                 new ClassPathXmlApplicationContext("applicationContext.xml");
@@ -25,38 +26,25 @@ public class Main {
         UserDao userDao = (UserDao) context.getBean("userDao");
         OrderDao orderDao = (OrderDao) context.getBean("orderDao");
 
+
+        System.out.println(new Gson().toJson(userDao.getById(1L)));
+
         // ========== USER SAVE ==========
-        User user = new User();
-        user.setName("Ali");
-        userDao.save(user);
+//        User user = new User();
+//        user.setName("Alisher");
+//        userDao.save(user);
+//
+//        // DB dan user olish
+//        List<User> users = userDao.getAll();
+//        User dbUser = users.get(1);
+//
+//        // ========== ORDER SAVE ==========
+//        Order order = new Order();
+//        order.setProduct("Naushnik");
+//        order.setUser(dbUser);
+//        orderDao.save(order);
 
-        System.out.println("User saved");
-
-        // DB dan user olish
-        List<User> users = userDao.getAll();
-        User dbUser = users.get(0);
-
-        // ========== ORDER SAVE ==========
-        Order order = new Order();
-        order.setProduct("Laptop");
-        order.setUser(dbUser);
-
-        orderDao.save(order);
-
-        System.out.println("Order saved");
-
-        // ========== ORDER LIST ==========
-        List<Order> orders = orderDao.getAll();
-
-        for (Order o : orders) {
-            System.out.println(
-                    o.getId() + " " +
-                            o.getProduct() + " " +
-                            o.getUser().getName()
-            );
-        }
-
-        System.out.println("Successfully fetched data");
+        System.out.println("Successfully inserted data");
     }
 
     public static void createTables() {
@@ -87,7 +75,7 @@ public class Main {
                         )
                     """);
 
-            System.out.println("Tables ready 🔥");
+            System.out.println("Tables ready");
 
             conn.close();
 

@@ -3,6 +3,16 @@ package org.example.models;
 public class Order {
     private Long id;
     private String product;
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", product='" + product + '\'' +
+                ", user=" + user +
+                '}';
+    }
+
     private User user;
 
     public Long getId() {
