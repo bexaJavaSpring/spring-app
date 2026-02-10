@@ -2,46 +2,60 @@ package org.example.service;
 
 import org.example.dao.OrderDao;
 import org.example.models.Order;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.transaction.annotation.Transactional;
+import org.example.models.User;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.util.List;
 
 public class OrderDaoImpl implements OrderDao {
-    private SessionFactory sessionFactory;
+    private JdbcTemplate jdbcTemplate;
 
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    private Session getSession(){
-        return sessionFactory.getCurrentSession();
-    }
-
-    @Transactional
     public void save(Order order){
-        getSession().save(order);
+        String sql = "insert into orders(product, user_id) values(?,?)";
+        jdbcTemplate.update(sql,
+                order.getProduct(),
+                order.getUser().getId());
     }
 
-    @Transactional
-    public Order getById(Long id){
-        return getSession().get(Order.class,id);
+    @Override
+    public Order getById(Long id) {
+        return null;
     }
 
-    @Transactional
     public List<Order> getAll(){
-        return getSession().createQuery("from orders",Order.class).list();
+        String sql = """
+            select o.id,o.product,u.id as user_id,u.name
+            from orders o
+            join users u on o.user_id=u.id
+            """;
+        return jdbcTemplate.query(sql, orderMapper);
     }
 
-    @Transactional
-    public void update(Order order){
-        getSession().update(order);
+    @Override
+    public void update(Order order) {
+
     }
 
-    @Transactional
-    public void delete(Long id){
-        Order order = getById(id);
-        getSession().delete(order);
+    @Override
+    public void delete(Long id) {
+
     }
+
+    private RowMapper<Order> orderMapper = (rs, rowNum) -> {
+        User u = new User();
+        u.setId(rs.getLong("user_id"));
+        u.setName(rs.getString("name"));
+
+        Order o = new Order();
+        o.setId(rs.getLong("id"));
+        o.setProduct(rs.getString("product"));
+        o.setUser(u);
+
+        return o;
+    };
 }

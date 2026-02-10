@@ -7,24 +7,92 @@ import org.example.models.User;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
+
+        // ========= 1. TABLE CREATE =========
+        createTables();
+
         ApplicationContext context =
                 new ClassPathXmlApplicationContext("applicationContext.xml");
+
+        // bean olish
         UserDao userDao = (UserDao) context.getBean("userDao");
         OrderDao orderDao = (OrderDao) context.getBean("orderDao");
 
-        // user create
+        // ========== USER SAVE ==========
         User user = new User();
-        user.setName("Bekhruz");
+        user.setName("Ali");
         userDao.save(user);
 
-        // order create
+        System.out.println("User saved");
+
+        // DB dan user olish
+        List<User> users = userDao.getAll();
+        User dbUser = users.get(0);
+
+        // ========== ORDER SAVE ==========
         Order order = new Order();
-        order.setProduct("Naushnik");
-        order.setUser(user);
+        order.setProduct("Laptop");
+        order.setUser(dbUser);
+
         orderDao.save(order);
 
-        System.out.println("Successfully worked");
+        System.out.println("Order saved");
+
+        // ========== ORDER LIST ==========
+        List<Order> orders = orderDao.getAll();
+
+        for (Order o : orders) {
+            System.out.println(
+                    o.getId() + " " +
+                            o.getProduct() + " " +
+                            o.getUser().getName()
+            );
+        }
+
+        System.out.println("Successfully fetched data");
+    }
+
+    public static void createTables() {
+
+        String url = "jdbc:postgresql://localhost:5432/spring_app";
+        String username = "postgres";
+        String password = "bexa";
+
+        try {
+            Class.forName("org.postgresql.Driver");
+            Connection conn = DriverManager.getConnection(url, username, password);
+            Statement stmt = conn.createStatement();
+
+            // users table
+            stmt.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS users(
+                            id SERIAL PRIMARY KEY,
+                            name VARCHAR(100)
+                        )
+                    """);
+
+            // orders table
+            stmt.executeUpdate("""
+                        CREATE TABLE IF NOT EXISTS orders(
+                            id SERIAL PRIMARY KEY,
+                            product VARCHAR(100),
+                            user_id INT REFERENCES users(id)
+                        )
+                    """);
+
+            System.out.println("Tables ready 🔥");
+
+            conn.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

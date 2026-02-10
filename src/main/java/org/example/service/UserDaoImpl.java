@@ -2,47 +2,48 @@ package org.example.service;
 
 import org.example.dao.UserDao;
 import org.example.models.User;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.util.List;
 
 public class UserDaoImpl implements UserDao {
 
-    private SessionFactory sessionFactory;
+    private JdbcTemplate jdbcTemplate;
 
-    public void setSessionFactory(SessionFactory sessionFactory) {
-        this.sessionFactory = sessionFactory;
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    private Session getSession(){
-        return sessionFactory.getCurrentSession();
-    }
-
-    @Transactional
     public void save(User user){
-        getSession().save(user);
+        String sql = "insert into users(name) values(?)";
+        jdbcTemplate.update(sql, user.getName());
     }
 
-    @Transactional
     public User getById(Long id){
-        return getSession().get(User.class,id);
+        String sql = "select * from users where id=?";
+        return jdbcTemplate.queryForObject(sql, userRowMapper, id);
     }
 
-    @Transactional
     public List<User> getAll(){
-        return getSession().createQuery("from users ",User.class).list();
+        String sql = "select * from users";
+        return jdbcTemplate.query(sql, userRowMapper);
     }
 
-    @Transactional
     public void update(User user){
-        getSession().update(user);
+        String sql = "update users set name=? where id=?";
+        jdbcTemplate.update(sql, user.getName(), user.getId());
     }
 
-    @Transactional
     public void delete(Long id){
-        User user = getById(id);
-        getSession().delete(user);
+        String sql = "delete from users where id=?";
+        jdbcTemplate.update(sql, id);
     }
+
+    private RowMapper<User> userRowMapper = (rs, rowNum) -> {
+        User u = new User();
+        u.setId(rs.getLong("id"));
+        u.setName(rs.getString("name"));
+        return u;
+    };
 }
