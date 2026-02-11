@@ -4,11 +4,11 @@ public class OrderDto {
     private Long id;
     private String product;
 
-    public Long getOrderId() {
+    public Long getId() {
         return id;
     }
 
-    public void setOrderId(Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

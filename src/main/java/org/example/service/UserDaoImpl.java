@@ -70,7 +70,6 @@ public class UserDaoImpl implements UserDao {
         UserOrderDto dto = new UserOrderDto();
         dto.setUserId(rs.getLong("id"));
         dto.setName(rs.getString("name"));
-        List<OrderDto> orders = new ArrayList<>();
         String ordersJson = rs.getString("orders");
         if (ordersJson != null) {
             try {
@@ -86,7 +85,6 @@ public class UserDaoImpl implements UserDao {
         } else {
             dto.setOrders(Collections.emptyList());
         }
-        dto.setOrders(orders);
         return dto;
     };
 }

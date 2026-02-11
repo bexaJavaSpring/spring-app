@@ -3,6 +3,7 @@ package org.example;
 import com.google.gson.Gson;
 import org.example.dao.OrderDao;
 import org.example.dao.UserDao;
+import org.example.dto.UserOrderDto;
 import org.example.models.Order;
 import org.example.models.User;
 import org.springframework.context.ApplicationContext;
@@ -27,7 +28,10 @@ public class Main {
         OrderDao orderDao = (OrderDao) context.getBean("orderDao");
 
 
-        System.out.println(new Gson().toJson(userDao.getById(1L)));
+        UserOrderDto dto = userDao.getById(1L);
+        System.out.println(dto.getUserId());
+        System.out.println(dto.getName());
+        System.out.println("orders: " + new Gson().toJson(dto.getOrders()));
 
         // ========== USER SAVE ==========
 //        User user = new User();
@@ -36,11 +40,11 @@ public class Main {
 //
 //        // DB dan user olish
 //        List<User> users = userDao.getAll();
-//        User dbUser = users.get(1);
+//        User dbUser = users.get(0);
 //
 //        // ========== ORDER SAVE ==========
 //        Order order = new Order();
-//        order.setProduct("Naushnik");
+//        order.setProduct("Mikrofon");
 //        order.setUser(dbUser);
 //        orderDao.save(order);
 
